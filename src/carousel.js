@@ -43,6 +43,7 @@ class Carousel extends Component {
       data,
       containerWidth,
       initialIndex,
+      onItemSelected,
     } = this.props;
     this.currentIndex = initialIndex;
     this.scrollXBegin = 0;
@@ -50,11 +51,18 @@ class Carousel extends Component {
     this.halfContainerWidth = containerWidth / 2;
     this.halfItemWidth = itemWidth / 2;
     this.alwaysCentralizeSelected = alwaysCentralizeSelected;
+    this.onItemSelected = onItemSelected;
     this.data = this.alwaysCentralizeSelected ?
        [this.Constants.dummyItem, ...data,  this.Constants.dummyItem]: data
     this.lastIndex = this.data.length - 1;
   }
-  
+
+  componentDidMount(){
+    if(this.onItemSelected){
+      this.onItemSelected(this.data[this.currentIndex]);
+    }
+  }
+
   setScrollHandler() {
     this.handleOnScroll = Animated.event(
       [{ nativeEvent: { contentOffset: { x: this.xOffset } } }],
@@ -72,6 +80,9 @@ class Carousel extends Component {
     if (index < 0 || index >= this.data.length) return;
     onScrollEnd(this.data[index], index);
     this.currentIndex = index;
+    if(this.onItemSelected && (!this.alwaysCentralizeSelected || (index > 0 && index<this.lastIndex))){
+     this.onItemSelected(this.data[index]);
+    }
     setTimeout(() => {
       this._scrollView.getNode().scrollToOffset({
         offset:
