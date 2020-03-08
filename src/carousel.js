@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import {
   Animated,
   StyleSheet,
+  TouchableWithoutFeedback,
   Dimensions,
   ViewPropTypes,
   FlatList
@@ -31,21 +32,29 @@ class Carousel extends Component {
     this.setScrollHandler();
   }
 
+  Constants = {
+    dummyItem : '',
+  }
+
   initialize() {
     const {
+      alwaysCentralizeSelected,
       itemWidth,
-      separatorWidth,
       data,
       containerWidth,
-      initialIndex
+      initialIndex,
     } = this.props;
     this.currentIndex = initialIndex;
     this.scrollXBegin = 0;
     this.xOffset = new Animated.Value(0);
     this.halfContainerWidth = containerWidth / 2;
     this.halfItemWidth = itemWidth / 2;
+    this.alwaysCentralizeSelected = alwaysCentralizeSelected;
+    this.data = this.alwaysCentralizeSelected ?
+       [this.Constants.dummyItem, ...data,  this.Constants.dummyItem]: data
+    this.lastIndex = this.data.length - 1;
   }
-
+  
   setScrollHandler() {
     this.handleOnScroll = Animated.event(
       [{ nativeEvent: { contentOffset: { x: this.xOffset } } }],
@@ -59,9 +68,9 @@ class Carousel extends Component {
   }
 
   scrollToIndex(index) {
-    const { onScrollEnd, data, itemWidth, separatorWidth } = this.props;
-    if (index < 0 || index >= data.length) return;
-    onScrollEnd(data[index], index);
+    const { onScrollEnd, itemWidth, separatorWidth } = this.props;
+    if (index < 0 || index >= this.data.length) return;
+    onScrollEnd(this.data[index], index);
     this.currentIndex = index;
     setTimeout(() => {
       this._scrollView.getNode().scrollToOffset({
@@ -94,11 +103,25 @@ class Carousel extends Component {
     scrollDistance < 0
       ? this.scrollToIndex(this.currentIndex - 1)
       : this.scrollToIndex(this.currentIndex + 1);
+
+    if(this.alwaysCentralizeSelected){
+      if(this.currentIndex === 0 && this.lastIndex > 0){
+        this.scrollToIndex(1);
+      }
+      if(this.currentIndex === this.lastIndex && this.currentIndex > 0){
+        this.scrollToIndex(this.lastIndex-1);
+      }
+    }
+  }
+
+  handleItemClick(index){
+    if(!this.alwaysCentralizeSelected || (this.lastIndex > index && index > 0 ) ){
+      this.scrollToIndex(index);
+    }
   }
 
   itemAnimatedStyles(index) {
     const {
-      data,
       inActiveScale,
       inActiveOpacity,
       itemWidth,
@@ -108,7 +131,7 @@ class Carousel extends Component {
     const animatedOffset =
       index === 0
         ? this.halfItemWidth
-        : index === data.length - 1
+        : index === this.data.length - 1
         ? containerWidth - this.halfItemWidth
         : this.halfContainerWidth;
     const midPoint =
@@ -118,8 +141,8 @@ class Carousel extends Component {
     const startPoint =
       index === 1
         ? 0
-        : index === data.length - 1
-        ? (data.length - 2) * (itemWidth + separatorWidth) +
+        : index === this.data.length - 1
+        ? (this.data.length - 2) * (itemWidth + separatorWidth) +
           this.halfItemWidth -
           this.halfContainerWidth
         : midPoint - itemWidth - separatorWidth;
@@ -129,8 +152,8 @@ class Carousel extends Component {
           separatorWidth +
           this.halfItemWidth -
           this.halfContainerWidth
-        : index === data.length - 2
-        ? (data.length - 1) * (itemWidth + separatorWidth) +
+        : index === this.data.length - 2
+        ? (this.data.length - 1) * (itemWidth + separatorWidth) +
           itemWidth -
           containerWidth
         : midPoint + itemWidth + separatorWidth;
@@ -158,17 +181,17 @@ class Carousel extends Component {
 
   renderItemContainer({ item, index }) {
     const {
-      data,
       renderItem,
       inverted,
       itemWidth,
       separatorWidth,
       itemContainerStyle
     } = this.props;
-    let marginWidth = index !== data.length - 1 ? separatorWidth : 0;
+    let marginWidth = index !== this.data.length - 1 ? separatorWidth : 0;
     let marginStyle = !!inverted
       ? { marginLeft: marginWidth }
       : { marginRight: marginWidth };
+    const onPress = () => this.handleItemClick(index);
     return (
       <Animated.View
         pointerEvents={'box-none'}
@@ -180,24 +203,27 @@ class Carousel extends Component {
           this.itemAnimatedStyles(index)
         ]}
       >
+      <TouchableWithoutFeedback
+        onPress={onPress}
+      >
         {renderItem({ item, index })}
+      </TouchableWithoutFeedback>
       </Animated.View>
     );
   }
-  getItemLayout(data, index) {
-    const {itemWidth,separatorWidth}=this.props;
-    return {
-      offset:index * (itemWidth + separatorWidth) +
-          this.halfItemWidth -
-          this.halfContainerWidth,
-      length: itemWidth,
-      index
-    };
+  getItemLayout(data, index) {	
+    const {itemWidth,separatorWidth}=this.props;	
+    return {	
+      offset:index * (itemWidth + separatorWidth) +	
+          this.halfItemWidth -	
+          this.halfContainerWidth,	
+      length: itemWidth,	
+      index	
+    };	
   }
 
   render() {
     const {
-      data,
       bounces,
       style,
       itemWidth,
@@ -210,7 +236,7 @@ class Carousel extends Component {
         {...otherProps}
         bounces={bounces}
         horizontal
-        data={data}
+        data={this.data}
         decelerationRate={0}
         automaticallyAdjustContentInsets={false}
         keyExtractor={(item, index) => index.toString()}
