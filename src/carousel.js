@@ -240,6 +240,7 @@ class Carousel extends Component {
       itemWidth,
       containerWidth,
       initialIndex,
+      alwaysSnapCenter,
       ...otherProps
     } = this.props;
     return (
@@ -260,6 +261,8 @@ class Carousel extends Component {
         onScroll={this.handleOnScroll}
         onScrollEndDrag={this.handleOnScrollEndDrag}
         getItemLayout={this.getItemLayout}
+        onTouchStart={alwaysSnapCenter ? this.handleOnScrollBeginDrag: null}
+        onTouchEnd={alwaysSnapCenter ? this.handleOnScrollEndDrag: null}
         //scrollEnabled//snapToInterval={itemWidth}
       />
     );
