@@ -285,7 +285,9 @@ Carousel.propTypes = {
   minScrollDistance: PropTypes.number,
   onScrollBeginDrag: PropTypes.func,
   onScrollEndDrag: PropTypes.func,
-  data: PropTypes.arrayOf(PropTypes.object)
+  data: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.object), 
+    PropTypes.arrayOf(PropTypes.string), 
+    PropTypes.arrayOf(PropTypes.number)]),
   //itemHeight: PropTypes.number,
   //containerHeight: PropTypes.number,
 };
