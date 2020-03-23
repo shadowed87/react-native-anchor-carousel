@@ -5,7 +5,8 @@ import {
   TouchableWithoutFeedback,
   Dimensions,
   ViewPropTypes,
-  FlatList
+  FlatList,
+  Platform,
 } from 'react-native';
 import PropTypes from 'prop-types';
 
@@ -243,6 +244,7 @@ class Carousel extends Component {
       alwaysSnapCenter,
       ...otherProps
     } = this.props;
+    const isIOS = (Platform.OS === 'ios');
     return (
       <AnimatedFlatList
         {...otherProps}
@@ -261,8 +263,8 @@ class Carousel extends Component {
         onScroll={this.handleOnScroll}
         onScrollEndDrag={this.handleOnScrollEndDrag}
         getItemLayout={this.getItemLayout}
-        onTouchStart={alwaysSnapCenter ? this.handleOnScrollBeginDrag: null}
-        onTouchEnd={alwaysSnapCenter ? this.handleOnScrollEndDrag: null}
+        onTouchStart={alwaysSnapCenter && !isIOS ? this.handleOnScrollBeginDrag: null}
+        onTouchEnd={alwaysSnapCenter && !isIOS ? this.handleOnScrollEndDrag: null}
         //scrollEnabled//snapToInterval={itemWidth}
       />
     );
