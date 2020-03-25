@@ -79,6 +79,7 @@ class Carousel extends Component {
   scrollToIndex(index) {
     const { onScrollEnd, itemWidth, separatorWidth } = this.props;
     if (index < 0 || index >= this.data.length) return;
+    if(this.alwaysCentralizeSelected  && (index === 0 || index === this.data.length-1)) return;
     onScrollEnd(this.data[index], index);
     this.currentIndex = index;
     if(this.onItemSelected && (!this.alwaysCentralizeSelected || (index > 0 && index<this.lastIndex))){
@@ -112,16 +113,22 @@ class Carousel extends Component {
       this.scrollToIndex(this.currentIndex);
       return;
     }
-    scrollDistance < 0
-      ? this.scrollToIndex(this.currentIndex - 1)
-      : this.scrollToIndex(this.currentIndex + 1);
-
-    if(this.alwaysCentralizeSelected){
-      if(this.currentIndex === 0 && this.lastIndex > 0){
-        this.scrollToIndex(1);
+    
+    if(scrollDistance < 0){
+      if(this.alwaysCentralizeSelected && this.currentIndex === 1){
+        this.scrollToIndex(this.currentIndex);
       }
-      if(this.currentIndex === this.lastIndex && this.currentIndex > 0){
-        this.scrollToIndex(this.lastIndex-1);
+      else{
+        this.scrollToIndex(this.currentIndex - 1);
+      }
+    }
+    else {
+      if(this.alwaysCentralizeSelected && this.currentIndex === this.lastIndex-1){
+        this.scrollToIndex(this.currentIndex);
+      }
+
+      else{
+        this.scrollToIndex(this.currentIndex + 1)
       }
     }
   }
