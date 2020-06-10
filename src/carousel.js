@@ -118,6 +118,12 @@ class Carousel extends Component {
       return;
     }
 
+    if (scrollDistance === 0){
+      return;
+    }
+
+    console.log(this.currentIndex)
+    console.log(scrollDistance)
     if(scrollDistance < 0){
       if(this.alwaysCentralizeSelected && this.currentIndex === 1){
         this.scrollToIndex(this.currentIndex);
