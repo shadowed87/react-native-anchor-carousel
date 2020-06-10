@@ -76,11 +76,15 @@ class Carousel extends Component {
     );
   }
 
-  scrollToIndex(index) {
+  scrollToIndex(index, doCallback = true) {
     const { onScrollEnd, itemWidth, separatorWidth } = this.props;
     if (index < 0 || index >= this.data.length) return;
     if(this.alwaysCentralizeSelected  && (index === 0 || index === this.data.length-1)) return;
-    onScrollEnd(this.data[index], index);
+    if(doCallback) {
+      setTimeout(() => {
+        onScrollEnd(this.data[index], index)
+      }, 150)
+    }
     this.currentIndex = index;
     if(this.onItemSelected && (!this.alwaysCentralizeSelected || (index > 0 && index<this.lastIndex))){
      this.onItemSelected(this.data[index]);
@@ -93,7 +97,7 @@ class Carousel extends Component {
           this.halfContainerWidth,
         animated: true
       });
-    });
+    }, 500);
   }
   handleOnScrollBeginDrag() {
     const { onScrollBeginDrag } = this.props;
@@ -113,7 +117,7 @@ class Carousel extends Component {
       this.scrollToIndex(this.currentIndex);
       return;
     }
-    
+
     if(scrollDistance < 0){
       if(this.alwaysCentralizeSelected && this.currentIndex === 1){
         this.scrollToIndex(this.currentIndex);
@@ -230,15 +234,15 @@ class Carousel extends Component {
       </Animated.View>
     );
   }
-  getItemLayout(data, index) {	
-    const {itemWidth,separatorWidth}=this.props;	
-    return {	
-      offset:index * (itemWidth + separatorWidth) +	
-          this.halfItemWidth -	
-          this.halfContainerWidth,	
-      length: itemWidth,	
-      index	
-    };	
+  getItemLayout(data, index) {
+    const {itemWidth,separatorWidth}=this.props;
+    return {
+      offset:index * (itemWidth + separatorWidth) +
+          this.halfItemWidth -
+          this.halfContainerWidth,
+      length: itemWidth,
+      index
+    };
   }
 
   render() {
@@ -247,6 +251,7 @@ class Carousel extends Component {
       style,
       itemWidth,
       containerWidth,
+      separatorWidth,
       initialIndex,
       alwaysSnapCenter,
       ...otherProps
@@ -258,7 +263,6 @@ class Carousel extends Component {
         bounces={bounces}
         horizontal
         data={this.data}
-        decelerationRate={0}
         automaticallyAdjustContentInsets={false}
         keyExtractor={(item, index) => index.toString()}
         ref={(ref) => (this._scrollView = ref)}
@@ -273,6 +277,11 @@ class Carousel extends Component {
         onTouchStart={alwaysSnapCenter && !isIOS ? this.handleOnScrollBeginDrag: null}
         onTouchEnd={alwaysSnapCenter && !isIOS ? this.handleOnScrollEndDrag: null}
         //scrollEnabled//snapToInterval={itemWidth}
+
+        snapToAlignment={"center"}
+        snapToInterval={itemWidth}
+        decelerationRate={0}
+        pagingEnabled
       />
     );
   }
@@ -294,8 +303,8 @@ Carousel.propTypes = {
   minScrollDistance: PropTypes.number,
   onScrollBeginDrag: PropTypes.func,
   onScrollEndDrag: PropTypes.func,
-  data: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.object), 
-    PropTypes.arrayOf(PropTypes.string), 
+  data: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.object),
+    PropTypes.arrayOf(PropTypes.string),
     PropTypes.arrayOf(PropTypes.number)]),
   //itemHeight: PropTypes.number,
   //containerHeight: PropTypes.number,
