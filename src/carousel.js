@@ -83,7 +83,7 @@ class Carousel extends Component {
     if(doCallback) {
       setTimeout(() => {
         onScrollEnd(this.data[index], index)
-      }, 150)
+      }, 0)
     }
     this.currentIndex = index;
     if(this.onItemSelected && (!this.alwaysCentralizeSelected || (index > 0 && index<this.lastIndex))){
@@ -97,7 +97,7 @@ class Carousel extends Component {
           this.halfContainerWidth,
         animated: true
       });
-    }, 500);
+    }, 250);
   }
   handleOnScrollBeginDrag() {
     const { onScrollBeginDrag } = this.props;
@@ -278,6 +278,12 @@ class Carousel extends Component {
         onTouchEnd={alwaysSnapCenter && !isIOS ? this.handleOnScrollEndDrag: null}
         //scrollEnabled//snapToInterval={itemWidth}
 
+        legacyImplementation={false}
+        updateCellsBatchingPeriod={300}
+        maxToRenderPerBatch={3}
+        removeClippedSubviews={true}
+        initialNumToRender={3}
+        numColumns={1}
         snapToAlignment={"center"}
         snapToInterval={itemWidth}
         decelerationRate={0}
