@@ -54,8 +54,13 @@ class Carousel extends Component {
     this.alwaysCentralizeSelected = alwaysCentralizeSelected;
     this.onItemSelected = onItemSelected;
     this.data = this.alwaysCentralizeSelected ?
-       [this.Constants.dummyItem, ...data,  this.Constants.dummyItem]: data
+      [this.Constants.dummyItem, ...data,  this.Constants.dummyItem]: data
     this.lastIndex = this.data.length - 1;
+  }
+
+  componentWillReceiveProps(nextProps: Readonly<P>, nextContext: any) {
+    this.data = this.alwaysCentralizeSelected ?
+      [this.Constants.dummyItem, ...nextProps.data, this.Constants.dummyItem] : nextProps.data
   }
 
   componentDidMount(){
@@ -87,7 +92,7 @@ class Carousel extends Component {
     }
     this.currentIndex = index;
     if(this.onItemSelected && (!this.alwaysCentralizeSelected || (index > 0 && index<this.lastIndex))){
-     this.onItemSelected(this.data[index]);
+      this.onItemSelected(this.data[index]);
     }
     setTimeout(() => {
       this._scrollView.getNode().scrollToOffset({
@@ -172,19 +177,19 @@ class Carousel extends Component {
         ? 0
         : index === this.data.length - 1
         ? (this.data.length - 2) * (itemWidth + separatorWidth) +
-          this.halfItemWidth -
-          this.halfContainerWidth
+        this.halfItemWidth -
+        this.halfContainerWidth
         : midPoint - itemWidth - separatorWidth;
     const endPoint =
       index === 0
         ? itemWidth +
-          separatorWidth +
-          this.halfItemWidth -
-          this.halfContainerWidth
+        separatorWidth +
+        this.halfItemWidth -
+        this.halfContainerWidth
         : index === this.data.length - 2
         ? (this.data.length - 1) * (itemWidth + separatorWidth) +
-          itemWidth -
-          containerWidth
+        itemWidth -
+        containerWidth
         : midPoint + itemWidth + separatorWidth;
 
     const animatedOpacity = {
@@ -232,11 +237,11 @@ class Carousel extends Component {
           this.itemAnimatedStyles(index)
         ]}
       >
-      <TouchableWithoutFeedback
-        onPress={onPress}
-      >
-        {renderItem({ item, index })}
-      </TouchableWithoutFeedback>
+        <TouchableWithoutFeedback
+          onPress={onPress}
+        >
+          {renderItem({ item, index })}
+        </TouchableWithoutFeedback>
       </Animated.View>
     );
   }
@@ -244,8 +249,8 @@ class Carousel extends Component {
     const {itemWidth,separatorWidth}=this.props;
     return {
       offset:index * (itemWidth + separatorWidth) +
-          this.halfItemWidth -
-          this.halfContainerWidth,
+        this.halfItemWidth -
+        this.halfContainerWidth,
       length: itemWidth,
       index
     };
